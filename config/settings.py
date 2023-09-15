@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # 'django_celery_beat',
     'rest_framework',
     # 'django_filters',
-    # 'corsheaders',
+    'corsheaders',
     'rest_framework_simplejwt',
     'drf_yasg',
     'users',
@@ -153,9 +153,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
 
-ORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
-    "http://127.0.0.1:9000",
+    "*",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
