@@ -6,7 +6,6 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.response import Response
 
 from users.models import User
-from users.validators import ReceivedInviteValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
