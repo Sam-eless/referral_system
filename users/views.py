@@ -1,5 +1,6 @@
 import time
 from django.core.exceptions import ObjectDoesNotExist
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.response import Response
@@ -15,7 +16,7 @@ class UserCreateView(CreateAPIView):
     serializer_class = UserPhoneSerializer
     queryset = User.objects.all()
 
-    # @swagger_auto_schema(responses={200: PaymentIntentCreateSerializer()})
+    @swagger_auto_schema(responses={200: UserSerializer()})
     def post(self, request, *args, **kwargs):
         phone = request.data['phone']
         try:
@@ -44,7 +45,7 @@ class UserAuthUpdateView(UpdateAPIView):
     queryset = User.objects.all()
 
     # permission_classes = [IsAuthenticated, OwnerOrStuff]
-
+    @swagger_auto_schema(responses={200: UserAuthSerializer()})
     def post(self, request, *args, **kwargs):
         try:
             phone = request.data['phone']
@@ -86,8 +87,9 @@ class UserListView(ListAPIView):
 class UserUpdateView(UpdateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated, OwnerOrStuff]
 
+    # permission_classes = [IsAuthenticated, OwnerOrStuff]
+    @swagger_auto_schema(responses={200: UserSerializer()})
     def partial_update(self, request, *args, **kwargs):
         if request.data["received_invite"]:
             try:
@@ -105,4 +107,3 @@ class UserUpdateView(UpdateAPIView):
                 raise serializers.ValidationError("Указанный инвайт код не найден")
 
         return super().partial_update(request, *args, **kwargs)
-
