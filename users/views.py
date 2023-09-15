@@ -2,7 +2,8 @@ import time
 from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListAPIView, DestroyAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from users.models import User
@@ -74,36 +75,55 @@ class UserAuthUpdateView(UpdateAPIView):
 class UserDetailView(RetrieveAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated, OwnerOrStuff]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            if request.user.pk == self.kwargs["pk"]:
+                return super().get(self, request, *args, **kwargs)
+            else:
+                raise serializers.ValidationError("Отказано в доступе")
+        except Exception as error:
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListView(ListAPIView):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated, OwnerOrStuff]
-    # pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
 
 
 class UserUpdateView(UpdateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-    # permission_classes = [IsAuthenticated, OwnerOrStuff]
+    permission_classes = [IsAuthenticated]
+
     @swagger_auto_schema(responses={200: UserSerializer()})
     def partial_update(self, request, *args, **kwargs):
+        print(request.user)
         if request.data["received_invite"]:
             try:
                 if self.kwargs["pk"]:
                     user = User.objects.get(pk=self.kwargs["pk"])
-                    invited_user = request.data["received_invite"]
-                    user.received_invite = User.objects.get(self_invite=invited_user)
-                    if user.is_invite_received:
-                        raise serializers.ValidationError("Может быть введен только один инвайт код")
+                    if request.user == user:
+                        invited_user = request.data["received_invite"]
+                        user.received_invite = User.objects.get(self_invite=invited_user)
+                        if user.is_invite_received:
+                            raise serializers.ValidationError("Может быть введен только один инвайт код")
+                        else:
+                            user.is_invite_received = True
+                            print(user.received_invite)
+                        user.save()
                     else:
-                        user.is_invite_received = True
-                        print(user.received_invite)
-                    user.save()
+                        raise serializers.ValidationError("Отказано в доступе")
             except ObjectDoesNotExist:
                 raise serializers.ValidationError("Указанный инвайт код не найден")
 
         return super().partial_update(request, *args, **kwargs)
+
+
+class UserDeleteView(DestroyAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
