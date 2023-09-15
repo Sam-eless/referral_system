@@ -155,7 +155,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
-    "*",
+    # "*",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
