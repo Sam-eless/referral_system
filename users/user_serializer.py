@@ -10,14 +10,22 @@ from users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     received_invite = SlugRelatedField(slug_field='self_invite', queryset=User.objects.all())
+    invited_users = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         result = super(UserSerializer, self).to_representation(instance)
         return OrderedDict([(key, result[key]) for key in result if result[key] is not None])
 
+    def get_invited_users(self, obj: User) -> list:
+        queryset = User.objects.filter(received_invite=obj)
+        if len(queryset) == 0:
+            return None
+        else:
+            return [UserPhoneSerializer(q).data for q in queryset]
+
     class Meta:
         model = User
-        fields = ["id", "email", "phone", "first_name", "last_name", "self_invite", "received_invite"]
+        fields = ["id", "email", "phone", "first_name", "last_name", "self_invite", "received_invite", "invited_users"]
 
 
 class UserPhoneSerializer(serializers.ModelSerializer):
