@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -39,9 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django_celery_beat',
     'rest_framework',
-    # 'django_filters',
     'corsheaders',
     'rest_framework_simplejwt',
     'drf_yasg',
@@ -86,15 +84,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ref_system',
-        'PORT': "5432",
-        'USER': 'postgres',
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        # 'NAME': os.getenv('POSTGRES_DB'),
-        # 'HOST': os.getenv('POSTGRES_HOST'),
-        # 'PORT': os.getenv('POSTGRES_PORT'),
-        # 'USER': os.getenv('POSTGRES_USER'),
-        # 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
     }
 }
 
