@@ -50,6 +50,7 @@
     которые ввели инвайт-код текущего пользователя.
 
 -	К проекту прикреплена Postman коллекция с запросами ко всем эндпоинтам.
+    [Коллекция Postman](https://api.postman.com/collections/27100518-47fac412-21f9-4431-a636-fa93ccd6f939?access_key=PMAT-01HAETSX6W5FZHEHBMW6ST2SWX)
 
 
 ### Запуск проекта
