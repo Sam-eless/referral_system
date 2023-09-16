@@ -103,7 +103,6 @@ class UserUpdateView(UpdateAPIView):
 
     @swagger_auto_schema(responses={200: UserSerializer()})
     def partial_update(self, request, *args, **kwargs):
-        print(request.user)
         if request.data["received_invite"]:
             try:
                 if self.kwargs["pk"]:
@@ -116,7 +115,6 @@ class UserUpdateView(UpdateAPIView):
                                             status=status.HTTP_400_BAD_REQUEST)
                         else:
                             user.is_invite_received = True
-                            print(user.received_invite)
                         user.save()
                     else:
                         return Response({'permission error': "Отказано в доступе"},
