@@ -87,6 +87,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ref_system',
+        'PORT': "5432",
         'USER': 'postgres',
         'PASSWORD': os.getenv('DB_PASSWORD'),
         # 'NAME': os.getenv('POSTGRES_DB'),
@@ -163,15 +164,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-# CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-# CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
-# CELERY_TIMEZONE = "Australia/Tasmania"
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-#
-# CELERY_BEAT_SCHEDULE = {
-#     'checking_need_for_habit': {
-#         'task': 'habits.tasks.checking_need_for_habit',
-#         'schedule': timedelta(minutes=1),
-#     }
-# }
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = "Australia/Tasmania"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
