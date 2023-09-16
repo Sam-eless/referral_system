@@ -73,12 +73,14 @@ class UserAuthUpdateView(UpdateAPIView):
 class UserDetailView(RetrieveAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, *args, **kwargs):
         try:
             if request.user.pk == self.kwargs["pk"]:
                 return super().get(self, request, *args, **kwargs)
+            elif not User.objects.filter(pk=self.kwargs["pk"]):
+                return Response({'error': "Пользователь не существует"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 raise serializers.ValidationError("Отказано в доступе")
         except Exception as error:
