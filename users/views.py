@@ -75,6 +75,7 @@ class UserDetailView(RetrieveAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, IsAdminUser]
 
+    @swagger_auto_schema(responses={200: UserSerializer()})
     def get(self, request, *args, **kwargs):
         try:
             if request.user.pk == self.kwargs["pk"]:

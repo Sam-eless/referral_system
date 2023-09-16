@@ -1,0 +1,91 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:14-alpine3.17
+    container_name: db_app
+    user: postgres
+    env_file:
+      - ./.env_docker
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0.2-alpine
+    container_name: redis_app
+    command: redis-server --save 20 1 --loglevel warning
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: app
+    container_name: app_container
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - ./.env_docker
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - static:/app/static
+      - media:/app/media
+    command: >
+      bash -c "python manage.py migrate
+      && python manage.py collectstatic --no-input
+      && python manage.py csu
+      && python manage.py cu
+      && gunicorn config.wsgi:application --timeout 0 --bind 0.0.0.0:8000"
+
+  celery_worker:
+    build:
+      context: .
+    env_file:
+      - ./.env_docker
+    container_name: "celery_worker"
+    image: app
+    command: celery -A config worker -l INFO
+    restart: always
+    depends_on:
+      - app
+      - redis
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    volumes:
+      - static:/app/static
+      - media:/app/media
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+
+volumes:
+  static:
+  media:
+  pg_data:
+  redis_data:
