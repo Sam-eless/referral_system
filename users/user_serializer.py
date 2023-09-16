@@ -42,7 +42,7 @@ class UserListSerializer(serializers.ModelSerializer):
         result = super(UserListSerializer, self).to_representation(instance)
         return OrderedDict([(key, result[key]) for key in result if result[key] is not None])
 
-    def get_invited_users(self, obj: User) -> list:
+    def get_invited_users(self, obj):
         queryset = User.objects.filter(received_invite=obj)
         if len(queryset) == 0:
             return None
