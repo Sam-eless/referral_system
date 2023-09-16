@@ -14,7 +14,6 @@ class User(AbstractUser):
     is_phone_verified = models.BooleanField(verbose_name='телефон подтвержден', default=False)
     auth_code = models.SmallIntegerField(verbose_name='код подтверждения', **NULLABLE)
     self_invite = models.CharField(max_length=6, verbose_name='инвайт код', **NULLABLE)
-    # unique = True,
     received_invite = models.ForeignKey('self', on_delete=models.DO_NOTHING, verbose_name='полученный инвайт код', **NULLABLE)
     is_invite_received = models.BooleanField(default=False, verbose_name='введен инвайт код другого пользователя')
 
@@ -27,4 +26,8 @@ class User(AbstractUser):
         unique_together = ('email', 'phone', 'first_name', 'last_name')
 
     def __str__(self):
-        return f'{self.email}, {self.phone}'
+        if self.email:
+            return f'{self.email}, {self.phone}'
+        else:
+            return f'{self.phone}'
+
