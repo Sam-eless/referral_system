@@ -10,7 +10,12 @@ from users.models import User
 
 
 def set_self_invite():
-    return get_random_string(length=6, allowed_chars=string.digits + string.ascii_lowercase + string.ascii_uppercase)
+    while True:
+        random_string = get_random_string(length=6,
+                                          allowed_chars=string.digits + string.ascii_lowercase + string.ascii_uppercase)
+        if not User.objects.filter(self_invite=random_string):
+            break
+    return random_string
 
 
 def set_auth_code():
@@ -18,7 +23,6 @@ def set_auth_code():
 
 
 def reset_auth_code(phone):
-
     try:
         user = User.objects.get(phone=phone)
         print('пользователь найден')
@@ -30,4 +34,3 @@ def reset_auth_code(phone):
         user.save()
     except Exception as error:
         print(error)
-
