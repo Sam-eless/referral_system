@@ -13,7 +13,6 @@ from users.user_serializer import UserSerializer, UserCreateSerializer, UserAuth
     UserPhoneSerializer
 
 
-# Create your views here.
 class UserCreateView(CreateAPIView):
     serializer_class = UserPhoneSerializer
     queryset = User.objects.all()
