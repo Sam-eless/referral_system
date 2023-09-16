@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     # 'django_celery_beat',
     'rest_framework',
     # 'django_filters',
-    # 'corsheaders',
+    'corsheaders',
     'rest_framework_simplejwt',
-    # 'drf_yasg',
+    'drf_yasg',
     'users',
 ]
 
@@ -87,6 +87,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ref_system',
+        'PORT': "5432",
         'USER': 'postgres',
         'PASSWORD': os.getenv('DB_PASSWORD'),
         # 'NAME': os.getenv('POSTGRES_DB'),
@@ -153,9 +154,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
 
-ORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
-    "http://127.0.0.1:9000",
+    # "*",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
@@ -163,15 +164,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-# CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-# CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
-# CELERY_TIMEZONE = "Australia/Tasmania"
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-#
-# CELERY_BEAT_SCHEDULE = {
-#     'checking_need_for_habit': {
-#         'task': 'habits.tasks.checking_need_for_habit',
-#         'schedule': timedelta(minutes=1),
-#     }
-# }
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = "Australia/Tasmania"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
