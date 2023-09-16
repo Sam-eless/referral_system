@@ -83,7 +83,8 @@ class UserDetailView(RetrieveAPIView):
             elif not User.objects.filter(pk=self.kwargs["pk"]):
                 return Response({'error': "Пользователь не существует"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                raise serializers.ValidationError("Отказано в доступе")
+                return Response({'permission error': "Отказано в доступе"},
+                                status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,15 +112,18 @@ class UserUpdateView(UpdateAPIView):
                         invited_user = request.data["received_invite"]
                         user.received_invite = User.objects.get(self_invite=invited_user)
                         if user.is_invite_received:
-                            raise serializers.ValidationError("Может быть введен только один инвайт код")
+                            return Response({'upd error': "Может быть введен только один инвайт код"},
+                                            status=status.HTTP_400_BAD_REQUEST)
                         else:
                             user.is_invite_received = True
                             print(user.received_invite)
                         user.save()
                     else:
-                        raise serializers.ValidationError("Отказано в доступе")
+                        return Response({'permission error': "Отказано в доступе"},
+                                        status=status.HTTP_400_BAD_REQUEST)
             except ObjectDoesNotExist:
-                raise serializers.ValidationError("Указанный инвайт код не найден")
+                return Response({'invite code error': "Указанный инвайт код не найден"},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         return super().partial_update(request, *args, **kwargs)
 
