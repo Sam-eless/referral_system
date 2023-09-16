@@ -26,8 +26,8 @@ def reset_auth_code(phone):
     try:
         user = User.objects.get(phone=phone)
         print('пользователь найден')
-        # time.sleep(60*60)
-        time.sleep(15)
+        time.sleep(60*60)
+        # time.sleep(15)
         user.is_phone_verified = False
         user.auth_code = None
         user.set_unusable_password()
