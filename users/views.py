@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from users.models import User
 from users.services.services import set_self_invite, set_auth_code
+from users.tasks import shared_reset_auth_code
 from users.user_serializer import UserSerializer, UserCreateSerializer, UserAuthSerializer, UserListSerializer, \
     UserPhoneSerializer
 
@@ -20,32 +21,29 @@ class UserCreateView(CreateAPIView):
     @swagger_auto_schema(responses={200: UserSerializer()})
     def post(self, request, *args, **kwargs):
         phone = request.data['phone']
+        user_auth_code = set_auth_code()
         try:
-            user_auth_code = set_auth_code()
-            user = User.objects.create(
-                phone=phone,
-                auth_code=user_auth_code,
-                # ОБНУЛЯТЬ КОД ЧЕРЕЗ ЧАС
-            )
+            if User.objects.filter(phone=phone):
+                user = User.objects.get(phone=phone)
+            else:
+                user = User.objects.create(phone=phone)
+            user.auth_code = user_auth_code
             user.set_password(user_auth_code)
             user.save()
+            shared_reset_auth_code.delay(user.phone)
             time.sleep(3)
-            print(user.auth_code)
-            return Response({'auth': "На ваш номер отправлен код подтверждения, введите auth_code"},
-                            status=status.HTTP_200_OK)
+            print(f'Код авторизации: {user_auth_code}')
+            return Response({
+                'auth': "На ваш номер отправлен код подтверждения, пройдите авторизацию (auth_code)"},
+                status=status.HTTP_200_OK)
         except Exception as error:
-            time.sleep(3)
-            return Response({'auth': "На ваш номер отправлен код подтверждения, введите auth_code"},
-                            status=status.HTTP_200_OK)
-
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserAuthUpdateView(UpdateAPIView):
     serializer_class = UserAuthSerializer
     queryset = User.objects.all()
 
-    # permission_classes = [IsAuthenticated, OwnerOrStuff]
     @swagger_auto_schema(responses={200: UserAuthSerializer()})
     def post(self, request, *args, **kwargs):
         try:
@@ -63,7 +61,8 @@ class UserAuthUpdateView(UpdateAPIView):
                     user.self_invite = set_self_invite()
                     user.save()
                     request.data['is_phone_verified'] = user.is_phone_verified
-                    #     СНИМАТЬ ФЛАЖОК ЧЕРЕЗ СУТКИ
+                    # Требуется повторная авторизация через заданное время
+                    shared_reset_auth_code.delay(user.phone)
                 else:
                     return Response({'auth error': "Неверный код авторизации"}, status=status.HTTP_400_BAD_REQUEST)
 
