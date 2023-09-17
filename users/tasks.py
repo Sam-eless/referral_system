@@ -5,6 +5,6 @@ from users.services.services import reset_auth_code
 
 
 @shared_task
-def shared_reset_auth_code(user: User):
-    reset_auth_code(user)
+def shared_reset_auth_code(phone):
+    reset_auth_code(phone)
 

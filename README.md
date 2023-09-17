@@ -12,6 +12,7 @@
 - SwaggerUI
 - celery
 - redis
+- Docker
 
 ### Описание
 
